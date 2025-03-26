@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GA Demo - Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="portfolio.html" class="active">Portfolio</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h1>Our Portfolio</h1>
+        <p>Explore our successful projects and client implementations.</p>
+        
+        <section class="portfolio-grid">
+            <div class="portfolio-item">
+                <div class="portfolio-image">
+                    <img src="https://via.placeholder.com/400x300" alt="E-commerce Analytics">
+                </div>
+                <div class="portfolio-content">
+                    <h3>E-commerce Analytics</h3>
+                    <p>Implemented comprehensive analytics for an online retail platform.</p>
+                    <ul class="portfolio-details">
+                        <li>Conversion tracking</li>
+                        <li>User journey analysis</li>
+                        <li>Custom reporting</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <div class="portfolio-image">
+                    <img src="https://via.placeholder.com/400x300" alt="Content Website">
+                </div>
+                <div class="portfolio-content">
+                    <h3>Content Website Analytics</h3>
+                    <p>Set up advanced analytics for a content-driven website.</p>
+                    <ul class="portfolio-details">
+                        <li>Content performance tracking</li>
+                        <li>User engagement metrics</li>
+                        <li>Traffic source analysis</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <div class="portfolio-image">
+                    <img src="https://via.placeholder.com/400x300" alt="Mobile App">
+                </div>
+                <div class="portfolio-content">
+                    <h3>Mobile App Analytics</h3>
+                    <p>Implemented mobile app analytics for a fitness tracking application.</p>
+                    <ul class="portfolio-details">
+                        <li>User retention tracking</li>
+                        <li>Feature usage analysis</li>
+                        <li>Crash reporting</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 GA Demo. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

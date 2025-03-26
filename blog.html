@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GA Demo - Blog</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="portfolio.html">Portfolio</a></li>
+            <li><a href="blog.html" class="active">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h1>Analytics Blog</h1>
+        <p>Insights, tips, and best practices for web analytics.</p>
+        
+        <section class="blog-grid">
+            <article class="blog-post">
+                <div class="blog-image">
+                    <img src="https://via.placeholder.com/600x300" alt="Google Analytics 4">
+                </div>
+                <div class="blog-content">
+                    <h2>Getting Started with Google Analytics 4</h2>
+                    <div class="blog-meta">
+                        <span class="date">March 15, 2024</span>
+                        <span class="category">Analytics</span>
+                    </div>
+                    <p>Learn how to set up and use Google Analytics 4 for your website. Discover the key features and benefits of the latest version.</p>
+                    <a href="#" class="read-more">Read More</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="blog-image">
+                    <img src="https://via.placeholder.com/600x300" alt="Conversion Tracking">
+                </div>
+                <div class="blog-content">
+                    <h2>Best Practices for Conversion Tracking</h2>
+                    <div class="blog-meta">
+                        <span class="date">March 10, 2024</span>
+                        <span class="category">Tracking</span>
+                    </div>
+                    <p>Explore effective strategies for tracking conversions and measuring the success of your marketing campaigns.</p>
+                    <a href="#" class="read-more">Read More</a>
+                </div>
+            </article>
+
+            <article class="blog-post">
+                <div class="blog-image">
+                    <img src="https://via.placeholder.com/600x300" alt="Data Visualization">
+                </div>
+                <div class="blog-content">
+                    <h2>Creating Effective Data Visualizations</h2>
+                    <div class="blog-meta">
+                        <span class="date">March 5, 2024</span>
+                        <span class="category">Visualization</span>
+                    </div>
+                    <p>Learn how to create compelling data visualizations that effectively communicate your analytics insights.</p>
+                    <a href="#" class="read-more">Read More</a>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 GA Demo. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

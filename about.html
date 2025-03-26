@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GA Demo - About</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html" class="active">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h1>About Us</h1>
+        <p>This is a demo website created to test Google Analytics integration.</p>
+        
+        <section class="about-content">
+            <h2>Our Mission</h2>
+            <p>To demonstrate how Google Analytics can be integrated into a simple website and track user behavior.</p>
+            
+            <h2>What We Do</h2>
+            <p>We create simple, effective solutions for tracking website analytics and understanding user behavior.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 GA Demo. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 
