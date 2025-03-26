@@ -1,8 +1,24 @@
 // Cart functionality
 let cart = [];
+let sessionStarted = false;
+
+// Track session start
+function trackSessionStart() {
+    if (!sessionStarted && typeof gtag !== 'undefined') {
+        console.log('Tracking session start...');
+        gtag('event', 'session_start', {
+            'event_category': 'E-commerce',
+            'event_label': 'Session Started',
+            'value': 1
+        });
+        sessionStarted = true;
+    }
+}
 
 // Track view_item event when products are loaded
 function trackViewItems() {
+    trackSessionStart(); // Ensure session is started
+    
     const products = document.querySelectorAll('.product-card');
     products.forEach(product => {
         const productId = product.dataset.productId;
@@ -15,11 +31,13 @@ function trackViewItems() {
                 'event_category': 'E-commerce',
                 'event_label': name,
                 'value': price,
+                'currency': 'USD',
                 'items': [{
                     'id': productId,
                     'name': name,
                     'price': price
-                }]
+                }],
+                'funnel_step': 2
             });
         }
     });
@@ -56,6 +74,8 @@ function updateCartDisplay() {
 }
 
 function addToCart(productId, name, price) {
+    trackSessionStart(); // Ensure session is started
+    
     cart.push({ id: productId, name, price });
     updateCartCount();
     updateCartDisplay();
@@ -67,11 +87,13 @@ function addToCart(productId, name, price) {
             'event_category': 'E-commerce',
             'event_label': name,
             'value': price,
+            'currency': 'USD',
             'items': [{
                 'id': productId,
                 'name': name,
                 'price': price
-            }]
+            }],
+            'funnel_step': 3
         });
     }
 }
@@ -99,18 +121,23 @@ function checkout() {
         return;
     }
 
+    trackSessionStart(); // Ensure session is started
+
     // Track checkout event
     if (typeof gtag !== 'undefined') {
+        const cartValue = cart.reduce((sum, item) => sum + item.price, 0);
         console.log('Sending checkout event...');
         gtag('event', 'begin_checkout', {
             'event_category': 'E-commerce',
             'event_label': 'Checkout',
-            'value': cart.reduce((sum, item) => sum + item.price, 0),
+            'value': cartValue,
+            'currency': 'USD',
             'items': cart.map(item => ({
                 'id': item.id,
                 'name': item.name,
                 'price': item.price
-            }))
+            })),
+            'funnel_step': 4
         });
     }
 
@@ -118,16 +145,19 @@ function checkout() {
     setTimeout(() => {
         // Track purchase event
         if (typeof gtag !== 'undefined') {
+            const cartValue = cart.reduce((sum, item) => sum + item.price, 0);
             console.log('Sending purchase event...');
             gtag('event', 'purchase', {
                 'event_category': 'E-commerce',
                 'event_label': 'Purchase',
-                'value': cart.reduce((sum, item) => sum + item.price, 0),
+                'value': cartValue,
+                'currency': 'USD',
                 'items': cart.map(item => ({
                     'id': item.id,
                     'name': item.name,
                     'price': item.price
-                }))
+                })),
+                'funnel_step': 5
             });
         }
 
@@ -142,6 +172,9 @@ function checkout() {
 // Initialize cart functionality
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded, initializing tracking...');
+    
+    // Start session tracking
+    trackSessionStart();
     
     // Track view_items when products page loads
     if (document.querySelector('.products-grid')) {
