@@ -1,6 +1,30 @@
 // Cart functionality
 let cart = [];
 
+// Track view_item event when products are loaded
+function trackViewItems() {
+    const products = document.querySelectorAll('.product-card');
+    products.forEach(product => {
+        const productId = product.dataset.productId;
+        const name = product.querySelector('h3').textContent;
+        const price = parseInt(product.querySelector('.product-price').textContent.replace('$', ''));
+        
+        if (typeof gtag !== 'undefined') {
+            console.log('Sending view_item event for product:', name);
+            gtag('event', 'view_item', {
+                'event_category': 'E-commerce',
+                'event_label': name,
+                'value': price,
+                'items': [{
+                    'id': productId,
+                    'name': name,
+                    'price': price
+                }]
+            });
+        }
+    });
+}
+
 function updateCartCount() {
     const cartCount = document.querySelector('.cart-count');
     if (cartCount) {
@@ -118,6 +142,11 @@ function checkout() {
 // Initialize cart functionality
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded, initializing tracking...');
+    
+    // Track view_items when products page loads
+    if (document.querySelector('.products-grid')) {
+        trackViewItems();
+    }
     
     // Cart modal functionality
     const modal = document.getElementById('cartModal');
