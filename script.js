@@ -1,17 +1,177 @@
-// Form submission handling
+// Cart functionality
+let cart = [];
+
+function updateCartCount() {
+    const cartCount = document.querySelector('.cart-count');
+    if (cartCount) {
+        cartCount.textContent = cart.length;
+    }
+}
+
+function updateCartDisplay() {
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    if (!cartItems || !cartTotal) return;
+
+    cartItems.innerHTML = '';
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'cart-item';
+        itemElement.innerHTML = `
+            <span>${item.name}</span>
+            <span>$${item.price}</span>
+            <button onclick="removeFromCart(${index})">Remove</button>
+        `;
+        cartItems.appendChild(itemElement);
+        total += item.price;
+    });
+
+    cartTotal.textContent = `$${total}`;
+}
+
+function addToCart(productId, name, price) {
+    cart.push({ id: productId, name, price });
+    updateCartCount();
+    updateCartDisplay();
+
+    // Track add to cart event
+    if (typeof gtag !== 'undefined') {
+        console.log('Sending add to cart event...');
+        gtag('event', 'add_to_cart', {
+            'event_category': 'E-commerce',
+            'event_label': name,
+            'value': price,
+            'items': [{
+                'id': productId,
+                'name': name,
+                'price': price
+            }]
+        });
+    }
+}
+
+function removeFromCart(index) {
+    const item = cart[index];
+    cart.splice(index, 1);
+    updateCartCount();
+    updateCartDisplay();
+
+    // Track remove from cart event
+    if (typeof gtag !== 'undefined') {
+        console.log('Sending remove from cart event...');
+        gtag('event', 'remove_from_cart', {
+            'event_category': 'E-commerce',
+            'event_label': item.name,
+            'value': item.price
+        });
+    }
+}
+
+function checkout() {
+    if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+
+    // Track checkout event
+    if (typeof gtag !== 'undefined') {
+        console.log('Sending checkout event...');
+        gtag('event', 'begin_checkout', {
+            'event_category': 'E-commerce',
+            'event_label': 'Checkout',
+            'value': cart.reduce((sum, item) => sum + item.price, 0),
+            'items': cart.map(item => ({
+                'id': item.id,
+                'name': item.name,
+                'price': item.price
+            }))
+        });
+    }
+
+    // Simulate successful purchase
+    setTimeout(() => {
+        // Track purchase event
+        if (typeof gtag !== 'undefined') {
+            console.log('Sending purchase event...');
+            gtag('event', 'purchase', {
+                'event_category': 'E-commerce',
+                'event_label': 'Purchase',
+                'value': cart.reduce((sum, item) => sum + item.price, 0),
+                'items': cart.map(item => ({
+                    'id': item.id,
+                    'name': item.name,
+                    'price': item.price
+                }))
+            });
+        }
+
+        alert('Thank you for your purchase!');
+        cart = [];
+        updateCartCount();
+        updateCartDisplay();
+        document.getElementById('cartModal').style.display = 'none';
+    }, 1500);
+}
+
+// Initialize cart functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const contactForm = document.getElementById('contactForm');
+    console.log('Page loaded, initializing tracking...');
     
+    // Cart modal functionality
+    const modal = document.getElementById('cartModal');
+    const viewCartBtn = document.getElementById('viewCart');
+    const closeCartBtn = document.getElementById('closeCart');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    if (viewCartBtn && modal) {
+        viewCartBtn.addEventListener('click', () => {
+            modal.style.display = 'block';
+        });
+    }
+
+    if (closeCartBtn && modal) {
+        closeCartBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', checkout);
+    }
+
+    // Add to cart buttons
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productCard = this.closest('.product-card');
+            const productId = productCard.dataset.productId;
+            const name = productCard.querySelector('h3').textContent;
+            const price = parseInt(productCard.querySelector('.product-price').textContent.replace('$', ''));
+            
+            addToCart(productId, name, price);
+        });
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Existing form submission handling
+    const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form data
             const formData = new FormData(contactForm);
             const formObject = Object.fromEntries(formData);
             
-            // Track form submission in Google Analytics
             if (typeof gtag !== 'undefined') {
+                console.log('Sending form submission event...');
                 gtag('event', 'form_submission', {
                     'event_category': 'Contact',
                     'event_label': 'Contact Form Submission',
@@ -19,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // Show success message
             alert('Thank you for your message! We will get back to you soon.');
             contactForm.reset();
         });
@@ -27,20 +186,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Track page views
     if (typeof gtag !== 'undefined') {
+        console.log('Sending page view event...');
         gtag('event', 'page_view', {
             'page_title': document.title,
             'page_location': window.location.href
         });
     }
-});
 
-// Track feature card clicks
-document.addEventListener('DOMContentLoaded', function() {
+    // Track feature card clicks
     const featureCards = document.querySelectorAll('.feature-card');
+    console.log('Found feature cards:', featureCards.length);
     
     featureCards.forEach(card => {
         card.addEventListener('click', function() {
             if (typeof gtag !== 'undefined') {
+                console.log('Sending feature click event...');
                 gtag('event', 'feature_click', {
                     'event_category': 'Features',
                     'event_label': this.querySelector('h3').textContent
@@ -48,15 +208,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 
-// Track service card interactions
-document.addEventListener('DOMContentLoaded', function() {
+    // Track service card interactions
     const serviceCards = document.querySelectorAll('.service-card');
+    console.log('Found service cards:', serviceCards.length);
     
     serviceCards.forEach(card => {
         card.addEventListener('click', function() {
             if (typeof gtag !== 'undefined') {
+                console.log('Sending service click event...');
                 gtag('event', 'service_click', {
                     'event_category': 'Services',
                     'event_label': this.querySelector('h3').textContent
@@ -64,15 +224,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 
-// Track portfolio item interactions
-document.addEventListener('DOMContentLoaded', function() {
+    // Track portfolio item interactions
     const portfolioItems = document.querySelectorAll('.portfolio-item');
+    console.log('Found portfolio items:', portfolioItems.length);
     
     portfolioItems.forEach(item => {
         item.addEventListener('click', function() {
             if (typeof gtag !== 'undefined') {
+                console.log('Sending portfolio click event...');
                 gtag('event', 'portfolio_click', {
                     'event_category': 'Portfolio',
                     'event_label': this.querySelector('h3').textContent
@@ -80,15 +240,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 
-// Track blog post interactions
-document.addEventListener('DOMContentLoaded', function() {
+    // Track blog post interactions
     const blogPosts = document.querySelectorAll('.blog-post');
+    console.log('Found blog posts:', blogPosts.length);
     
     blogPosts.forEach(post => {
         post.addEventListener('click', function() {
             if (typeof gtag !== 'undefined') {
+                console.log('Sending blog post click event...');
                 gtag('event', 'blog_post_click', {
                     'event_category': 'Blog',
                     'event_label': this.querySelector('h2').textContent
@@ -96,15 +256,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 
-// Track navigation clicks
-document.addEventListener('DOMContentLoaded', function() {
+    // Track navigation clicks
     const navLinks = document.querySelectorAll('nav a');
+    console.log('Found navigation links:', navLinks.length);
     
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
             if (typeof gtag !== 'undefined') {
+                console.log('Sending navigation click event...');
                 gtag('event', 'navigation_click', {
                     'event_category': 'Navigation',
                     'event_label': this.textContent
@@ -112,10 +272,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 
-// Track scroll depth
-document.addEventListener('DOMContentLoaded', function() {
+    // Track scroll depth
+    console.log('Initializing scroll depth tracking...');
     let maxScroll = 0;
     const scrollThresholds = [25, 50, 75, 100];
     const scrollEvents = new Set();
@@ -127,6 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollThresholds.forEach(threshold => {
             if (scrollPercent >= threshold && !scrollEvents.has(threshold)) {
                 if (typeof gtag !== 'undefined') {
+                    console.log('Sending scroll depth event:', threshold + '%');
                     gtag('event', 'scroll_depth', {
                         'event_category': 'Engagement',
                         'event_label': `${threshold}%`,
@@ -137,15 +297,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 
-// Track time on page
-document.addEventListener('DOMContentLoaded', function() {
+    // Track time on page
+    console.log('Initializing time on page tracking...');
     let startTime = new Date().getTime();
     
     window.addEventListener('beforeunload', function() {
         if (typeof gtag !== 'undefined') {
             const timeSpent = Math.round((new Date().getTime() - startTime) / 1000);
+            console.log('Sending time on page event:', timeSpent + ' seconds');
             gtag('event', 'time_on_page', {
                 'event_category': 'Engagement',
                 'event_label': 'Time Spent',
