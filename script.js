@@ -4,6 +4,36 @@ let sessionStarted = false;
 let startTime = new Date().getTime();
 let timeOnSite = 0;
 
+// Track UTM parameters from email links
+function trackEmailParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParams = {
+        'sfmc_journey_id': urlParams.get('sfmc_journey_id'),
+        'sfmc_journey_name': urlParams.get('sfmc_journey_name'),
+        'sfmc_activity_id': urlParams.get('sfmc_activity_id'),
+        'sfmc_activity_name': urlParams.get('sfmc_activity_name'),
+        'sfmc_asset_id': urlParams.get('sfmc_asset_id'),
+        'sfmc_channel': urlParams.get('sfmc_channel')
+    };
+
+    // Check if any email parameters exist
+    if (Object.values(emailParams).some(param => param !== null)) {
+        if (typeof gtag !== 'undefined') {
+            console.log('Tracking email parameters:', emailParams);
+            gtag('event', 'email_click', {
+                'event_category': 'Marketing',
+                'event_label': 'Email Campaign Click',
+                'sfmc_journey_id': emailParams.sfmc_journey_id,
+                'sfmc_journey_name': emailParams.sfmc_journey_name,
+                'sfmc_activity_id': emailParams.sfmc_activity_id,
+                'sfmc_activity_name': emailParams.sfmc_activity_name,
+                'sfmc_asset_id': emailParams.sfmc_asset_id,
+                'sfmc_channel': emailParams.sfmc_channel
+            });
+        }
+    }
+}
+
 // Track time on site
 function updateTimeOnSite() {
     const currentTime = new Date().getTime();
@@ -181,6 +211,9 @@ function checkout() {
 // Initialize cart functionality
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded, initializing tracking...');
+    
+    // Track email parameters first
+    trackEmailParameters();
     
     // Start session tracking
     trackSessionStart();
