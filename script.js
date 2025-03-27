@@ -13,10 +13,8 @@ function updateTimeOnSite() {
     if (timeOnSite % 30 === 0) {
         if (typeof gtag !== 'undefined') {
             console.log('Sending time_on_site event:', timeOnSite, 'seconds');
-            gtag('event', 'time_on_site', {
-                'event_category': 'Engagement',
-                'event_label': 'Time on Site',
-                'value': timeOnSite
+            gtag('event', 'user_engagement', {
+                'engagement_time_msec': timeOnSite * 1000
             });
         }
     }
@@ -26,10 +24,8 @@ function updateTimeOnSite() {
 function trackSessionStart() {
     if (!sessionStarted && typeof gtag !== 'undefined') {
         console.log('Tracking session start...');
-        gtag('event', 'session_start', {
-            'event_category': 'E-commerce',
-            'event_label': 'Session Started',
-            'value': 1
+        gtag('event', 'first_visit', {
+            'engagement_time_msec': 0
         });
         sessionStarted = true;
     }
@@ -37,7 +33,7 @@ function trackSessionStart() {
 
 // Track view_item event when products are loaded
 function trackViewItems() {
-    trackSessionStart(); // Ensure session is started
+    trackSessionStart();
     
     const products = document.querySelectorAll('.product-card');
     products.forEach(product => {
@@ -48,16 +44,13 @@ function trackViewItems() {
         if (typeof gtag !== 'undefined') {
             console.log('Sending view_item event for product:', name);
             gtag('event', 'view_item', {
-                'event_category': 'E-commerce',
-                'event_label': name,
-                'value': price,
                 'currency': 'USD',
+                'value': price,
                 'items': [{
-                    'id': productId,
-                    'name': name,
+                    'item_id': productId,
+                    'item_name': name,
                     'price': price
-                }],
-                'funnel_step': 2
+                }]
             });
         }
     });
@@ -100,21 +93,17 @@ function addToCart(productId, name, price) {
     updateCartCount();
     updateCartDisplay();
 
-    // Track add to cart event with time on site
+    // Track add to cart event
     if (typeof gtag !== 'undefined') {
         console.log('Sending add to cart event...');
         gtag('event', 'add_to_cart', {
-            'event_category': 'E-commerce',
-            'event_label': name,
-            'value': price,
             'currency': 'USD',
+            'value': price,
             'items': [{
-                'id': productId,
-                'name': name,
+                'item_id': productId,
+                'item_name': name,
                 'price': price
-            }],
-            'funnel_step': 3,
-            'time_on_site': timeOnSite
+            }]
         });
     }
 }
@@ -129,9 +118,13 @@ function removeFromCart(index) {
     if (typeof gtag !== 'undefined') {
         console.log('Sending remove from cart event...');
         gtag('event', 'remove_from_cart', {
-            'event_category': 'E-commerce',
-            'event_label': item.name,
-            'value': item.price
+            'currency': 'USD',
+            'value': item.price,
+            'items': [{
+                'item_id': item.id,
+                'item_name': item.name,
+                'price': item.price
+            }]
         });
     }
 }
@@ -144,43 +137,36 @@ function checkout() {
 
     trackSessionStart();
 
-    // Track checkout event with time on site
+    // Track checkout event
     if (typeof gtag !== 'undefined') {
         const cartValue = cart.reduce((sum, item) => sum + item.price, 0);
         console.log('Sending checkout event...');
         gtag('event', 'begin_checkout', {
-            'event_category': 'E-commerce',
-            'event_label': 'Checkout',
-            'value': cartValue,
             'currency': 'USD',
+            'value': cartValue,
             'items': cart.map(item => ({
-                'id': item.id,
-                'name': item.name,
+                'item_id': item.id,
+                'item_name': item.name,
                 'price': item.price
-            })),
-            'funnel_step': 4,
-            'time_on_site': timeOnSite
+            }))
         });
     }
 
     // Simulate successful purchase
     setTimeout(() => {
-        // Track purchase event with time on site
+        // Track purchase event
         if (typeof gtag !== 'undefined') {
             const cartValue = cart.reduce((sum, item) => sum + item.price, 0);
             console.log('Sending purchase event...');
             gtag('event', 'purchase', {
-                'event_category': 'E-commerce',
-                'event_label': 'Purchase',
-                'value': cartValue,
+                'transaction_id': 'T' + Date.now(),
                 'currency': 'USD',
+                'value': cartValue,
                 'items': cart.map(item => ({
-                    'id': item.id,
-                    'name': item.name,
+                    'item_id': item.id,
+                    'item_name': item.name,
                     'price': item.price
-                })),
-                'funnel_step': 5,
-                'time_on_site': timeOnSite
+                }))
             });
         }
 
@@ -205,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Start time tracking
-    setInterval(updateTimeOnSite, 1000); // Update every second
+    setInterval(updateTimeOnSite, 1000);
     
     // Cart modal functionality
     const modal = document.getElementById('cartModal');
@@ -277,7 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Sending page view event...');
         gtag('event', 'page_view', {
             'page_title': document.title,
-            'page_location': window.location.href
+            'page_location': window.location.href,
+            'engagement_time_msec': 0
         });
     }
 
@@ -375,8 +362,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (scrollPercent >= threshold && !scrollEvents.has(threshold)) {
                 if (typeof gtag !== 'undefined') {
                     console.log('Sending scroll depth event:', threshold + '%');
-                    gtag('event', 'scroll_depth', {
-                        'event_category': 'Engagement',
+                    gtag('event', 'scroll', {
+                        'event_category': 'engagement',
                         'event_label': `${threshold}%`,
                         'value': threshold
                     });
@@ -388,16 +375,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Track time on page
     console.log('Initializing time on page tracking...');
-    let startTime = new Date().getTime();
-    
     window.addEventListener('beforeunload', function() {
         if (typeof gtag !== 'undefined') {
             const timeSpent = Math.round((new Date().getTime() - startTime) / 1000);
             console.log('Sending time on page event:', timeSpent + ' seconds');
-            gtag('event', 'time_on_page', {
-                'event_category': 'Engagement',
-                'event_label': 'Time Spent',
-                'value': timeSpent
+            gtag('event', 'user_engagement', {
+                'engagement_time_msec': timeSpent * 1000
             });
         }
     });
