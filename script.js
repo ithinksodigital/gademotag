@@ -1,6 +1,26 @@
 // Cart functionality
 let cart = [];
 let sessionStarted = false;
+let startTime = new Date().getTime();
+let timeOnSite = 0;
+
+// Track time on site
+function updateTimeOnSite() {
+    const currentTime = new Date().getTime();
+    timeOnSite = Math.floor((currentTime - startTime) / 1000); // Convert to seconds
+    
+    // Track time on site every 30 seconds
+    if (timeOnSite % 30 === 0) {
+        if (typeof gtag !== 'undefined') {
+            console.log('Sending time_on_site event:', timeOnSite, 'seconds');
+            gtag('event', 'time_on_site', {
+                'event_category': 'Engagement',
+                'event_label': 'Time on Site',
+                'value': timeOnSite
+            });
+        }
+    }
+}
 
 // Track session start
 function trackSessionStart() {
@@ -74,13 +94,13 @@ function updateCartDisplay() {
 }
 
 function addToCart(productId, name, price) {
-    trackSessionStart(); // Ensure session is started
+    trackSessionStart();
     
     cart.push({ id: productId, name, price });
     updateCartCount();
     updateCartDisplay();
 
-    // Track add to cart event
+    // Track add to cart event with time on site
     if (typeof gtag !== 'undefined') {
         console.log('Sending add to cart event...');
         gtag('event', 'add_to_cart', {
@@ -93,7 +113,8 @@ function addToCart(productId, name, price) {
                 'name': name,
                 'price': price
             }],
-            'funnel_step': 3
+            'funnel_step': 3,
+            'time_on_site': timeOnSite
         });
     }
 }
@@ -121,9 +142,9 @@ function checkout() {
         return;
     }
 
-    trackSessionStart(); // Ensure session is started
+    trackSessionStart();
 
-    // Track checkout event
+    // Track checkout event with time on site
     if (typeof gtag !== 'undefined') {
         const cartValue = cart.reduce((sum, item) => sum + item.price, 0);
         console.log('Sending checkout event...');
@@ -137,13 +158,14 @@ function checkout() {
                 'name': item.name,
                 'price': item.price
             })),
-            'funnel_step': 4
+            'funnel_step': 4,
+            'time_on_site': timeOnSite
         });
     }
 
     // Simulate successful purchase
     setTimeout(() => {
-        // Track purchase event
+        // Track purchase event with time on site
         if (typeof gtag !== 'undefined') {
             const cartValue = cart.reduce((sum, item) => sum + item.price, 0);
             console.log('Sending purchase event...');
@@ -157,7 +179,8 @@ function checkout() {
                     'name': item.name,
                     'price': item.price
                 })),
-                'funnel_step': 5
+                'funnel_step': 5,
+                'time_on_site': timeOnSite
             });
         }
 
@@ -180,6 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('.products-grid')) {
         trackViewItems();
     }
+    
+    // Start time tracking
+    setInterval(updateTimeOnSite, 1000); // Update every second
     
     // Cart modal functionality
     const modal = document.getElementById('cartModal');
